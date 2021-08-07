@@ -1,4 +1,5 @@
-#ifdef __ARM_NEON__
+#include "config.h"
+#ifdef USE_ARM_NEON
 /*
  * Copyright © 2009 Nokia Corporation
  *

@@ -1,4 +1,5 @@
-#if defined(__ARM_NEON__)
+#include "config.h"
+#if defined(USE_ARM_NEON)
 
 #include "vector_vdrawhelper.h"
 

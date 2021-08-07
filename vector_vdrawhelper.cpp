@@ -1,3 +1,4 @@
+#include "config.h"
 /*
  * Copyright (c) 2020 Samsung Electronics Co., Ltd. All rights reserved.
 
@@ -754,7 +755,7 @@ void VSpanData::updateSpanFunc()
     }
 }
 
-#if !defined(__SSE2__) && !defined(__ARM_NEON__)
+#if !defined(__SSE2__) && !defined(USE_ARM_NEON)
 void memfill32(uint32_t *dest, uint32_t value, int length)
 {
     // let compiler do the auto vectorization.

@@ -15,6 +15,7 @@ def get_closest_local_header(header):
 
 def fix_headers(code_text):
     out = ''
+    has_neon = False
     for line in code_text:
         # Special fixes
         if line == '#include <vpoint.h>':
@@ -25,6 +26,10 @@ def fix_headers(code_text):
             line = '#include "vglobal.h"'
         if line == '#include <vrect.h>':
             line = '#include "vrect.h"'
+        # ARM on apple fixes
+        if '__ARM_NEON__' in line:
+            has_neon = True
+            line = line.replace('__ARM_NEON__', 'USE_ARM_NEON')
         header_file = re.match('#include\s+["]([^"]+)["].*', line)
         # regex to search for <, > too
         #header_file = re.match('#include\s+[<"]([^>"]+)[>"].*', line)
@@ -42,6 +47,8 @@ def fix_headers(code_text):
                     out += line + '\n'
         else:
             out += line + '\n'
+    if has_neon:
+        out = '#include "config.h"\n' + out
     return out
 
 if len(sys.argv) < 2:
@@ -96,7 +103,11 @@ for full_path, local in FILE_KEYS.items():
     local_file.close()
 
 # Write config.h
-config = '#define LOTTIE_THREAD_SUPPORT\n#define LOTTIE_CACHE_SUPPORT\n'
+config = '#ifndef GO_RLOTTIE_HPP\n#define GO_RLOTTIE_HPP\n'
+# ARM on apple won't compile
+config += '#ifndef __APPLE__\n#ifdef __ARM_NEON__\n#define USE_ARM_NEON\n#endif\n#endif\n'
+config += '#define LOTTIE_THREAD_SUPPORT\n#define LOTTIE_CACHE_SUPPORT\n'
+config += '#endif\n'
 config_file = open('config.h', "w")
 config_file.write(config)
 config_file.close()
@@ -105,7 +116,7 @@ config_file.close()
 with open('vector_pixman_pixman-arm-neon-asm.S') as code:
     assembly = code.read()
 code.close()
-assembly = '#ifdef __ARM_NEON__\n' + assembly + '#endif\n'
+assembly = '#include "config.h"\n#ifdef USE_ARM_NEON\n' + assembly + '#endif\n'
 fixed_assembly = open('vector_pixman_pixman-arm-neon-asm.S', "w")
 fixed_assembly.write(assembly)
 fixed_assembly.close()

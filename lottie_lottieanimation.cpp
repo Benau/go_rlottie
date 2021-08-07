@@ -1,3 +1,4 @@
+#include "config.h"
 /*
  * Copyright (c) 2020 Samsung Electronics Co., Ltd. All rights reserved.
 
@@ -444,7 +445,7 @@ void Surface::setDrawRegion(size_t x, size_t y, size_t width, size_t height)
 #ifdef LOTTIE_LOGGING_SUPPORT
 void initLogging()
 {
-#if defined(__ARM_NEON__)
+#if defined(USE_ARM_NEON)
     set_log_level(LogLevel::OFF);
 #else
     initialize(GuaranteedLogger(), "/tmp/", "rlottie", 1);
